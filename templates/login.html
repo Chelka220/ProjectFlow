@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Вход — ProjectFlow{% endblock %}
+
+{% block content %}
+
+<h2>Вход в ProjectFlow</h2>
+
+<form method="POST">
+
+    <p>
+        <label>Логин:</label><br>
+        <input type="text" name="username" required>
+    </p>
+
+    <p>
+        <label>Пароль:</label><br>
+        <input type="password" name="password" required>
+    </p>
+
+    <button type="submit">Войти</button>
+
+</form>
+
+<p>
+    Нет аккаунта?
+    <a href="{{ url_for('register') }}">Зарегистрироваться</a>
+</p>
+
+{% endblock %}

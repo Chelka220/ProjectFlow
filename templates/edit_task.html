@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование задачи — ProjectFlow{% endblock %}
+
+{% block content %}
+
+<h2>Редактирование задачи</h2>
+
+<form method="POST">
+    <p>
+        <label>Название задачи:</label><br>
+        <input type="text" name="title" value="{{ task.title }}" required>
+    </p>
+
+    <p>
+        <label>Описание:</label><br>
+        <textarea name="description" rows="4" cols="40">{{ task.description or "" }}</textarea>
+    </p>
+
+    <p>
+        <label>Проект:</label><br>
+        <select name="project_id" required>
+            {% for project in projects %}
+                <option value="{{ project.id }}"
+                    {% if project.id == task.project_id %}selected{% endif %}>
+                    {{ project.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p>
+        <label>Исполнитель:</label><br>
+        <select name="executor_id">
+            <option value="">Не назначен</option>
+            {% for user in users %}
+                <option value="{{ user.id }}"
+                    {% if user.id == task.executor_id %}selected{% endif %}>
+                    {{ user.username }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p>
+        <label>Срок выполнения:</label><br>
+        <input type="date" name="deadline"
+               value="{{ task.deadline.strftime('%Y-%m-%d') if task.deadline else '' }}">
+    </p>
+
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<p>
+    <a href="{{ url_for('tasks') }}">← Вернуться к задачам</a>
+</p>
+
+{% endblock %}

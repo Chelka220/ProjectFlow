@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Отчёты — ProjectFlow{% endblock %}
+
+{% block content %}
+
+<h2>Отчёты по задачам</h2>
+
+<p>Общее количество задач: <strong>{{ total_tasks }}</strong></p>
+
+<h3>Распределение по статусам</h3>
+
+<ul>
+    <li>Новые: {{ new_tasks }}</li>
+    <li>В работе: {{ in_progress_tasks }}</li>
+    <li>На проверке: {{ under_review_tasks }}</li>
+    <li>Завершённые: {{ completed_tasks }}</li>
+    <li>Отклонённые: {{ rejected_tasks }}</li>
+</ul>
+
+<p>
+    <a href="{{ url_for('tasks') }}">← Вернуться к задачам</a>
+</p>
+
+{% endblock %}

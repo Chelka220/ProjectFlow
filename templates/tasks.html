@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Задачи — ProjectFlow{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+        <p class="{{ category }}">{{ message }}</p>
+    {% endfor %}
+{% endwith %}
+
+<h2>Задачи</h2>
+
+<form method="POST">
+
+    <p>
+        <label>Название задачи:</label><br>
+        <input type="text" name="title" required>
+    </p>
+
+    <p>
+        <label>Описание:</label><br>
+        <textarea name="description" rows="4" cols="40"></textarea>
+    </p>
+
+    <p>
+        <label>Проект:</label><br>
+        <select name="project_id" required>
+            {% for project in projects %}
+                <option value="{{ project.id }}">
+                    {{ project.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p>
+        <label>Исполнитель:</label><br>
+        <select name="executor_id">
+            <option value="">Не назначен</option>
+
+            {% for user in users %}
+                <option value="{{ user.id }}">
+                    {{ user.username }}
+                </option>
+            {% endfor %}
+        </select>
+    </p>
+
+    <p>
+        <label>Срок выполнения:</label><br>
+        <input type="date" name="deadline">
+    </p>
+
+    <button type="submit">Создать задачу</button>
+
+</form>
+
+<hr>
+
+<h3>Список задач</h3>
+
+{% if tasks %}
+
+    <ul>
+        {% for task in tasks %}
+        <li>
+    <strong>{{ task.title }}</strong>
+
+    {% if task.project %}
+        | Проект: {{ task.project.name }}
+    {% endif %}
+
+    {% if task.deadline %}
+        | Срок: {{ task.deadline }}
+    {% endif %}
+
+    <p>
+        Текущий статус:
+        <strong>{{ task.status }}</strong>
+    </p>
+
+    <form method="POST"
+          action="{{ url_for('update_task_status', task_id=task.id) }}">
+
+        <select name="status">
+            <option value="new"
+                {% if task.status == "new" %}selected{% endif %}>
+                Новая
+            </option>
+
+            <option value="in_progress"
+                {% if task.status == "in_progress" %}selected{% endif %}>
+                В работе
+            </option>
+
+            <option value="under_review"
+                {% if task.status == "under_review" %}selected{% endif %}>
+                На проверке
+            </option>
+
+            <option value="completed"
+                {% if task.status == "completed" %}selected{% endif %}>
+                Завершена
+            </option>
+
+            <option value="rejected"
+                {% if task.status == "rejected" %}selected{% endif %}>
+                Отклонена
+            </option>
+        </select>
+
+        <button type="submit">Изменить статус</button>
+
+    </form>
+    <p>
+        <a href="{{ url_for('edit_task', task_id=task.id) }}">
+            Редактировать
+        </a>
+    </p>
+
+</li>
+        {% endfor %}
+    </ul>
+
+{% else %}
+
+    <p>Пока задач нет.</p>
+
+{% endif %}
+
+{% endblock %}

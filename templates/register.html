@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Регистрация — ProjectFlow{% endblock %}
+
+{% block content %}
+
+<h2>Регистрация</h2>
+
+<form method="POST">
+
+    <p>
+        <label>Логин:</label><br>
+        <input type="text" name="username" required>
+    </p>
+
+    <p>
+        <label>Пароль:</label><br>
+        <input type="password" name="password" required>
+    </p>
+
+    <p>
+        <label>Роль:</label><br>
+        <select name="role">
+            <option value="executor">Исполнитель</option>
+            <option value="manager">Менеджер</option>
+            <option value="admin">Администратор</option>
+        </select>
+    </p>
+
+    <button type="submit">Зарегистрироваться</button>
+
+</form>
+
+{% endblock %}
