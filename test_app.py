@@ -217,3 +217,27 @@ def test_executor_cannot_edit_task(client):
     with app.app_context():
         task = db.session.get(Task, task_id)
         assert task.title == "Исходная задача"
+
+def test_user_login_wrong_password(client):
+    client.post(
+        "/register",
+        data={
+            "username": "wrong_password_user",
+            "password": "correct_password"
+        }
+    )
+
+    response = client.post(
+        "/login",
+        data={
+            "username": "wrong_password_user",
+            "password": "incorrect_password"
+        },
+        follow_redirects=True
+    )
+
+    assert response.status_code == 200
+
+    with client.session_transaction() as session_data:
+        assert session_data.get("user_id") is None
+        assert session_data.get("username") is None
