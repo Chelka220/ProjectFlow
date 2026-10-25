@@ -241,3 +241,53 @@ def test_user_login_wrong_password(client):
     with client.session_transaction() as session_data:
         assert session_data.get("user_id") is None
         assert session_data.get("username") is None
+
+def test_executor_sees_only_assigned_tasks(client):
+    from models import User, Project, Task
+
+    with app.app_context():
+        executor = User(
+            username="task_executor",
+            password="unused",
+            role="executor"
+        )
+        other_executor = User(
+            username="other_executor",
+            password="unused",
+            role="executor"
+        )
+        project = Project(name="Проект для проверки")
+
+        db.session.add_all([executor, other_executor, project])
+        db.session.commit()
+
+        # Сохраняем ID, пока объекты привязаны к сессии
+        executor_id = executor.id
+        other_executor_id = other_executor.id
+        project_id = project.id
+
+        assigned_task = Task(
+            title="Моя задача",
+            project_id=project_id,
+            executor_id=executor_id
+        )
+        other_task = Task(
+            title="Чужая задача",
+            project_id=project_id,
+            executor_id=other_executor_id
+        )
+
+        db.session.add_all([assigned_task, other_task])
+        db.session.commit()
+
+    # Используем сохранённый ID, а не объект executor
+    with client.session_transaction() as session_data:
+        session_data["user_id"] = executor_id
+        session_data["username"] = "task_executor"
+        session_data["role"] = "executor"
+
+    response = client.get("/tasks")
+
+    assert response.status_code == 200
+    assert "Моя задача".encode() in response.data
+    assert "Чужая задача".encode() not in response.data
