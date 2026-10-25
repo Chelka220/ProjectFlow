@@ -291,3 +291,47 @@ def test_executor_sees_only_assigned_tasks(client):
     assert response.status_code == 200
     assert "Моя задача".encode() in response.data
     assert "Чужая задача".encode() not in response.data
+
+def test_completed_task_cannot_return_to_progress(client):
+    from models import User, Project, Task
+
+    with app.app_context():
+        executor = User(
+            username="completed_executor",
+            password="unused",
+            role="executor"
+        )
+        project = Project(name="Завершённый проект")
+
+        db.session.add_all([executor, project])
+        db.session.commit()
+
+        executor_id = executor.id
+        project_id = project.id
+
+        task = Task(
+            title="Завершённая задача",
+            project_id=project_id,
+            executor_id=executor_id,
+            status="completed"
+        )
+        db.session.add(task)
+        db.session.commit()
+        task_id = task.id
+
+    with client.session_transaction() as session_data:
+        session_data["user_id"] = executor_id
+        session_data["username"] = "completed_executor"
+        session_data["role"] = "executor"
+
+    response = client.post(
+        f"/tasks/{task_id}/status",
+        data={"status": "in_progress"},
+        follow_redirects=True
+    )
+
+    assert response.status_code == 200
+
+    with app.app_context():
+        task = db.session.get(Task, task_id)
+        assert task.status == "completed"
